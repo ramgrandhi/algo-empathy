@@ -8,6 +8,8 @@ __pycache__/
 .env.local
 .env.*.local
 
+venv/
+
 # Next.js build output
 frontend/.next/
 frontend/out/
