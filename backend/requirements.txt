@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+transformers
+torch
+torchaudio
+soundfile
+anthropic
+httpx

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: default
+  labels:
+    app: coat-advisor
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coat-advisor
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: coat-advisor
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          # Replace with your actual registry image, e.g. registry.example.com/coat-advisor-frontend:latest
+          image: coat-advisor-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: coat-advisor-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: default
+spec:
+  selector:
+    app: coat-advisor
+    component: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

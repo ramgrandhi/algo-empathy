@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coat-advisor-config
+  namespace: default
+data:
+  LLM_PROVIDER: "claude" # claude | azure
+  NEXT_PUBLIC_API_URL: "http://localhost:8000" # Change this to the actual ingress URL
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: coat-advisor-secrets
+  namespace: default
+type: Opaque
+stringData:
+  OPENWEATHER_API_KEY: "your-openweather-api-key"
+  ANTHROPIC_API_KEY: "your-anthropic-api-key"
+  AZURE_OPENAI_ENDPOINT: "your-azure-endpoint"
+  AZURE_OPENAI_API_KEY: "your-azure-api-key"
+  AZURE_OPENAI_DEPLOYMENT: "your-azure-deployment"

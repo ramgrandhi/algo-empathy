@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: default
+  labels:
+    app: coat-advisor
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coat-advisor
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: coat-advisor
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          # Replace with your actual registry image, e.g. registry.example.com/coat-advisor-backend:latest
+          image: coat-advisor-backend:latest 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: coat-advisor-config
+            - secretRef:
+                name: coat-advisor-secrets
+          resources:
+            requests:
+              cpu: "1000m" # wav2vec2 and whisper require CPU compute
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+            - name: models-volume
+              mountPath: /app/models
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: data-pvc
+        - name: models-volume
+          persistentVolumeClaim:
+            claimName: models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: default
+spec:
+  selector:
+    app: coat-advisor
+    component: backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
